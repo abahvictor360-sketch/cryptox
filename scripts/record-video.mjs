@@ -19,7 +19,8 @@ const port = mobile ? 9334 : 9333
 const proc = spawn(SHELL, [
   `--remote-debugging-port=${port}`, '--deterministic-mode', '--enable-begin-frame-control',
   '--run-all-compositor-stages-before-draw', '--disable-threaded-animation', '--disable-threaded-scrolling',
-  '--disable-checker-imaging', '--no-sandbox', '--hide-scrollbars', '--force-color-profile=srgb', 'about:blank',
+  '--disable-checker-imaging', '--no-sandbox', '--hide-scrollbars', '--force-color-profile=srgb',
+  ...(mobile ? ['--force-device-scale-factor=2', '--window-size=390,844'] : ['--window-size=1920,1080']), 'about:blank',
 ], { stdio: ['ignore', 'ignore', 'pipe'] })
 const wsUrl = await new Promise((res, rej) => {
   let buf = ''
