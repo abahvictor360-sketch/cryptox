@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -26,26 +26,30 @@ function Page({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const location = useLocation()
+  // Users who ask for reduced motion get every animation's end state instantly
+  const reduceMotion = useReducedMotion() ?? false
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [location.pathname])
 
   return (
-    <div className="relative min-h-screen">
-      <Navbar />
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<Page><Home /></Page>} />
-          <Route path="/features" element={<Page><FeaturesPage /></Page>} />
-          <Route path="/why-choose" element={<Page><WhyChoosePage /></Page>} />
-          <Route path="/testimonials" element={<Page><TestimonialsPage /></Page>} />
-          <Route path="/faq" element={<Page><FaqPage /></Page>} />
-          <Route path="/contact" element={<Page><ContactPage /></Page>} />
-          <Route path="*" element={<Page><NotFound /></Page>} />
-        </Routes>
-      </AnimatePresence>
-      <Footer />
-    </div>
+    <MotionConfig skipAnimations={reduceMotion}>
+      <div className="relative min-h-screen">
+        <Navbar />
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<Page><Home /></Page>} />
+            <Route path="/features" element={<Page><FeaturesPage /></Page>} />
+            <Route path="/why-choose" element={<Page><WhyChoosePage /></Page>} />
+            <Route path="/testimonials" element={<Page><TestimonialsPage /></Page>} />
+            <Route path="/faq" element={<Page><FaqPage /></Page>} />
+            <Route path="/contact" element={<Page><ContactPage /></Page>} />
+            <Route path="*" element={<Page><NotFound /></Page>} />
+          </Routes>
+        </AnimatePresence>
+        <Footer />
+      </div>
+    </MotionConfig>
   )
 }

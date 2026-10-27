@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import BrandButton from '../components/BrandButton'
 import HeroCards from './HeroCards'
 
@@ -12,9 +12,10 @@ const PILLS = [
 const words = ['Step', 'Into', 'The', 'Future', 'Of']
 
 export default function Hero() {
+  const reduceMotion = useReducedMotion()
   const { scrollY } = useScroll()
-  const vortexY = useTransform(scrollY, [0, 600], [0, 160])
-  const vortexOpacity = useTransform(scrollY, [0, 600], [1, 0.3])
+  const vortexY = useTransform(scrollY, [0, 600], reduceMotion ? [0, 0] : [0, 160])
+  const vortexOpacity = useTransform(scrollY, [0, 600], reduceMotion ? [1, 1] : [1, 0.3])
 
   return (
     <section className="relative overflow-hidden px-4 pb-20 pt-32 sm:pt-36">
