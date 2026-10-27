@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { ArrowDownUp, Bell, ChevronDown, Maximize2, Menu, Wallet } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { ArrowDownUp, Bell, ChevronDown, Maximize2, Menu, Pause, Play, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Sparkline from '../components/Sparkline'
 import { MARKETS } from '../lib/data'
@@ -12,14 +12,15 @@ const SPARKS = [
   [4, 6, 5, 8, 9, 8, 11, 13],
 ]
 
-function useTickingPrices() {
+function useTickingPrices(paused: boolean) {
   const [prices, setPrices] = useState(MARKETS.map((m) => m.price))
   useEffect(() => {
+    if (paused) return
     const id = setInterval(() => {
       setPrices((ps) => ps.map((p) => +(p * (1 + (Math.random() - 0.5) * 0.002)).toFixed(2)))
     }, 1800)
     return () => clearInterval(id)
-  }, [])
+  }, [paused])
   return prices
 }
 
@@ -34,12 +35,29 @@ const card = {
 }
 
 function MarketsCard() {
-  const prices = useTickingPrices()
+  const reduceMotion = useReducedMotion()
+  const [userPaused, setUserPaused] = useState(false)
+  // Live ticking stays off for reduced-motion users; everyone else can pause it
+  const paused = userPaused || !!reduceMotion
+  const prices = useTickingPrices(paused)
   return (
     <div className="glass rounded-2xl p-4">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-medium">Markets</span>
-        <Link to="/features" className="text-xs text-brand">See All</Link>
+        <div className="flex items-center gap-3">
+          {!reduceMotion && (
+            <button
+              type="button"
+              onClick={() => setUserPaused((p) => !p)}
+              aria-pressed={userPaused}
+              aria-label={userPaused ? 'Resume live prices' : 'Pause live prices'}
+              className="grid h-6 w-6 place-items-center rounded-full bg-white/10 text-white/80 ring-1 ring-line hover:text-white"
+            >
+              {userPaused ? <Play size={11} /> : <Pause size={11} />}
+            </button>
+          )}
+          <Link to="/features" className="text-xs text-brand">See All</Link>
+        </div>
       </div>
       <div className="space-y-2">
         {MARKETS.map((m, i) => (
@@ -58,7 +76,7 @@ function MarketsCard() {
               </div>
             </div>
             <Sparkline points={SPARKS[i]} />
-            <div className="text-right">
+            <div className="min-w-[4.75rem] shrink-0 text-right">
               <motion.div
                 key={prices[i]}
                 initial={{ color: '#ff7a3d' }}
